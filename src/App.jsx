@@ -14,10 +14,9 @@ function App() {
   const handleModelChange = (event) => {
     setModel(event.target.value);
   };
-
   const checkHandler = async () => {
     setLoad(true);
-     await fetch("http://localhost:8000/predict/", {
+     await fetch("https://sexism-detection.onrender.com/predict/", { // https://sexism-detection.onrender.com/predict/ http://localhost:8000/predict/
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -3,7 +3,8 @@ from pydantic import BaseModel
 import torch
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 from fastapi.middleware.cors import CORSMiddleware
-
+from langdetect import detect
+from deep_translator import GoogleTranslator
 app = FastAPI()
 
 app.add_middleware(
@@ -13,6 +14,12 @@ app.add_middleware(
     allow_methods=["*"], 
     allow_headers=["*"],
 )
+def translate_if_russian(text):
+    language = detect(text)
+    if language == 'ru':
+        translated_text = GoogleTranslator(source='ru', target='en').translate(text)
+        return translated_text
+    return text
 
 class Message(BaseModel):
     text: str
@@ -45,7 +52,7 @@ async def predict(message: Message):
     model = models[model_name]
     tokenizer = tokenizers[model_name]
     
-    inputs = tokenizer(message.text, return_tensors="pt", truncation=True, padding=True)
+    inputs = tokenizer(translate_if_russian(message.text), return_tensors="pt", truncation=True, padding=True)
     
     with torch.no_grad():
         outputs = model(**inputs)
