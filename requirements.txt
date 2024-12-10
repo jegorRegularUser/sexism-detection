@@ -3,3 +3,5 @@ uvicorn[standard]
 pydantic
 torch
 transformers
+langdetect
+deep_translator
