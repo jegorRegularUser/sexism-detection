@@ -6,6 +6,8 @@ function App() {
   const [text, setText] = useState("");
   const [res, setRes] = useState('');
   const [model, setModel] = useState("local_3");
+  const [history, setHistory] = useState([]); // Для хранения истории
+  const [showHistory, setShowHistory] = useState(false); // Для отображения истории
 
   const handleChange = (event) => {
     setText(event.target.value);
@@ -14,9 +16,10 @@ function App() {
   const handleModelChange = (event) => {
     setModel(event.target.value);
   };
+
   const checkHandler = async () => {
     setLoad(true);
-     await fetch("https://sexism-detection.onrender.com/predict/", { // https://sexism-detection.onrender.com/predict/ http://localhost:8000/predict/
+    await fetch("https://sexism-detection.onrender.com/predict/", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -25,14 +28,25 @@ function App() {
     })
       .then(res => res.json())
       .then(res => {
-        setRes(res.prediction === 1 ? "Sexist" : "Not Sexist");
+        const result = res.prediction === 1 ? "Your message is Sexist" : "Your message is Not Sexist";
+        setRes(result);
+
+        setHistory((prevHistory) => [
+          { text, model, result },
+          ...prevHistory,
+        ]);
       })
       .catch((e) => {
+        setRes('Sorry, try again');
         console.error(e);
       })
       .finally(() => {
         setLoad(false);
       });
+  };
+
+  const toggleHistory = () => {
+    setShowHistory(!showHistory);
   };
 
   return (
@@ -48,17 +62,37 @@ function App() {
           <option value="collab_7">Collab Model 7e</option>
           <option value="2_collab_3">2.0 Collab Model 3e</option>
         </select>
-        
+
         <textarea
           value={text}
           onChange={handleChange}
           placeholder="Here..."
         ></textarea>
-        <button onClick={checkHandler}>Check!</button>
+        <button onClick={checkHandler} disabled={!text || load}>
+          {load ? "Checking..." : "Check!"}
+        </button>
       </div>
 
-      {load && <p>Loading...</p>}
-      {!load && (res ? <p>Your message is {res}</p> : <p>Sorry, try again</p>)}
+      {!load && (res ? <p>{res}</p> : <p></p>)}
+
+      <div className="history-container">
+        <button className="history-button" onClick={toggleHistory}>
+          {showHistory ? "Hide Past Answers" : "Show Past Answers"}
+        </button>
+
+        {showHistory && (
+          <ul className="history-list">
+            {history.map((item, index) => (
+              <li key={index} className="history-item">
+                <div className="model">Model: {item.model}</div>
+                <div className="query"> {item.text}</div>
+                <div className="separator"></div>
+                <div className="response"> {item.result}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </>
   );
 }

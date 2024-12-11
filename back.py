@@ -4,6 +4,7 @@ import torch
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 from fastapi.middleware.cors import CORSMiddleware
 from langdetect import detect
+from langdetect.lang_detect_exception import LangDetectException
 from deep_translator import GoogleTranslator
 app = FastAPI()
 
@@ -15,11 +16,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 def translate_if_russian(text):
-    language = detect(text)
-    if language == 'ru':
-        translated_text = GoogleTranslator(source='ru', target='en').translate(text)
-        return translated_text
-    return text
+    try:
+        language = detect(text)
+        if language == 'ru':
+            translated_text = GoogleTranslator(source='ru', target='en').translate(text)
+            return translated_text
+        return text
+    except LangDetectException:
+        return text
 
 class Message(BaseModel):
     text: str
