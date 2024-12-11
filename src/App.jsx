@@ -6,8 +6,8 @@ function App() {
   const [text, setText] = useState("");
   const [res, setRes] = useState('');
   const [model, setModel] = useState("local_3");
-  const [history, setHistory] = useState([]); // Для хранения истории
-  const [showHistory, setShowHistory] = useState(false); // Для отображения истории
+  const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
 
   const handleChange = (event) => {
     setText(event.target.value);
@@ -19,7 +19,7 @@ function App() {
 
   const checkHandler = async () => {
     setLoad(true);
-    await fetch("https://sexism-detection.onrender.com/predict/", {
+    await fetch("https://sexism-detection.onrender.com/predict/ ", {// https://sexism-detection.onrender.com/predict/ http://localhost:8000/predict/
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -56,8 +56,8 @@ function App() {
 
       <div className="input">
         <select value={model} onChange={handleModelChange}>
+        <option value="local_5">Local Model 5e</option>
           <option value="local_3">Local Model 3e</option>
-          <option value="local_5">Local Model 5e</option>
           <option value="collab_5">Collab Model 5e</option>
           <option value="collab_7">Collab Model 7e</option>
           <option value="2_collab_3">2.0 Collab Model 3e</option>
