@@ -1,8 +1,4 @@
-# React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Нейро-детектор сексизма в вашем сообщении!
+Просто зачетный колледжный проект по машинному обучению
+Вот уже открытый хост сайта https://jegorregularuser.github.io/sexism-detection/
+Здесь сервер запускается в первый раз за 1-2 минуты, самой лучшей моделью стала local_model_5e - модель обученая на локальном пк с 5 эпохами обучения. 
