@@ -1,4 +1,4 @@
 {
-  "threshold": 0.5200000000000001,
+  "threshold": 0.5900000000000002,
   "selection": "argmax F1 on validation"
 }

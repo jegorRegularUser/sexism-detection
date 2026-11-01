@@ -149,7 +149,11 @@ def drop_anomalies(df: pd.DataFrame, text_col: str, stats: Counter) -> pd.DataFr
     stats["drop:non_english"] += before - len(df)
 
     before = len(df)
-    df = df.drop_duplicates(subset="text", keep="first")
+    # case-insensitive dedup: "Fuck this" and "fuck this" are the same row,
+    # and case-only twins must never straddle the train/test boundary
+    df = df.assign(_key=df["text"].str.casefold()).drop_duplicates(
+        subset="_key", keep="first"
+    ).drop(columns="_key")
     stats["drop:duplicate"] += before - len(df)
     return df
 
@@ -286,10 +290,10 @@ def balance_and_split(corpus: pd.DataFrame, stats: Counter) -> None:
     corpus = pd.concat(capped, ignore_index=True)
     corpus["label"] = corpus["source"].isin(["mhs_sexist"]).astype(int)
 
-    contradictions = corpus.groupby("text")["label"].nunique()
+    contradictions = corpus.assign(_key=corpus["text"].str.casefold()).groupby("_key")["label"].nunique()
     bad = contradictions[contradictions > 1].index
+    corpus = corpus[~corpus["text"].str.casefold().isin(bad)]
     stats["drop:label_contradiction"] = int(len(bad))
-    corpus = corpus[~corpus["text"].isin(bad)]
 
     corpus = corpus.sample(frac=1.0, random_state=SEED).reset_index(drop=True)
 

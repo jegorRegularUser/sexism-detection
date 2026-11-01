@@ -15,7 +15,6 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -78,16 +77,18 @@ def _get_model(name: str):
     return _loaded[name]
 
 
+# Sync endpoint on purpose: torch inference would block the event loop, so
+# FastAPI runs this in its threadpool instead.
 @app.post("/predict/")
-async def predict(message: Message):
+def predict(message: Message):
     if message.model not in AVAILABLE_MODELS:
         raise HTTPException(status_code=400, detail="Model not found")
 
     tokenizer, model, threshold = _get_model(message.model)
 
     text = translate_if_russian(message.text)
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=256,
-                       padding=True)
+    inputs = tokenizer(text, return_tensors="pt", truncation=True,
+                       max_length=128, padding=True)
 
     with torch.no_grad():
         logits = model(**inputs).logits

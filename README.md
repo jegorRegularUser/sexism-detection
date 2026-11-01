@@ -53,21 +53,25 @@ early stopping по F1 (patience 2), лучшая эпоха по val-F1, пор
 
 ## Результаты
 
-Held-out тест (3 085 строк, стратифицированный):
+Held-out тест (3 083 строки, стратифицированный, пересечений со train — ноль):
 
 | Модель | Accuracy | Precision | Recall | F1 | ROC-AUC |
 |---|---|---|---|---|---|
-| **sexism-distilbert-v2** | **0.947** | **0.741** | 0.799 | **0.769** | **0.969** |
-| local_5 (старая лучшая) | 0.917 | 0.535 | **0.826** | 0.649 | 0.935 |
+| **sexism-distilbert-v2** | **0.943** | **0.715** | 0.813 | **0.761** | **0.966** |
+| local_5 (старая лучшая) | 0.903 | 0.542 | 0.813 | 0.650 | 0.920 |
 
-Старые модели ловят больше «чего-то злого», но** путают сексизм с любым хейтом**:
-на негативах вида «расизм без женщин» точность 83–87% против 93% у новой,
-precision падает до 0.53–0.60. На HateCheck у старых выше recall на шаблонных
-фразах (`reports/model_comparison.csv`) — их исходный CSV был ближе к такому
-стилю; новый корпус — реальные комментарии Reddit/Twitter.
+Старые модели ловят столько же позитивов (recall одинаковый 0.813), но** путают
+сексизм с любым хейтом**: на сложных негативах «хейт без женщин» точность
+83–90% против 92% у новой, precision падает до 0.54–0.59 — они метят расизм
+словом «сексизм». Полная таблица по всем шести моделям и двум бенчмаркам:
+`reports/model_comparison.csv` (генерируется `ml/compare_models.py`).
 
-Разбивка по 29 функциональностям HateCheck: `reports/hatecheck_breakdown.csv`
-+ PNG. Слабые места честно видны там же:
+На HateCheck у старых моделей выше recall на шаблонных фразах (F1 0.711
+против 0.517) — их исходный CSV был ближе к такому стилю; новый корпус —
+реальные комментарии Reddit/Twitter. Разбивка новой модели по 29
+функциональностям HateCheck: `reports/hatecheck_breakdown.csv` + PNG.
+
+Слабые места честно видны там же:
 
 - **имплицитный сексизм без слуров** (derog_impl, negate_pos) — в корпусе MHS
   позитивы в основном прямые; лечение — гейтнутые датасеты EDOS/EXIST (SemEval),
@@ -84,6 +88,7 @@ python -m venv .venv
 python ml/prepare_data.py      # соберёт data/processed/*.csv (~35k строк)
 python ml/train.py             # обучит models/sexism-distilbert-v2 (~5 мин на RTX 4070)
 python ml/evaluate.py          # метрики теста + HateCheck breakdown
+python ml/compare_models.py    # сравнение всех моделей → reports/model_comparison.csv
 python ml/predict.py "women belong in the kitchen"
 uvicorn back:app               # поднять API
 ```
