@@ -5,7 +5,7 @@ function App() {
   const [load, setLoad] = useState(false);
   const [text, setText] = useState("");
   const [res, setRes] = useState('');
-  const [model, setModel] = useState("local_3");
+  const [model, setModel] = useState("sexism-distilbert-v2");
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
@@ -28,7 +28,10 @@ function App() {
     })
       .then(res => res.json())
       .then(res => {
-        const result = res.prediction === 1 ? "Your message is Sexist" : "Your message is Not Sexist";
+        const confidence = typeof res.probability === 'number'
+          ? ` (confidence ${(res.probability * 100).toFixed(1)}%)`
+          : '';
+        const result = (res.prediction === 1 ? "Your message is Sexist" : "Your message is Not Sexist") + confidence;
         setRes(result);
 
         setHistory((prevHistory) => [
@@ -56,7 +59,8 @@ function App() {
 
       <div className="input">
         <select value={model} onChange={handleModelChange}>
-        <option value="local_5">Local Model 5e</option>
+          <option value="sexism-distilbert-v2">Improved Model (v2)</option>
+          <option value="local_5">Local Model 5e</option>
           <option value="local_3">Local Model 3e</option>
           <option value="collab_5">Collab Model 5e</option>
           <option value="collab_7">Collab Model 7e</option>

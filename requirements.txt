@@ -5,3 +5,8 @@ torch
 transformers
 langdetect
 deep_translator
+datasets
+scikit-learn
+pandas
+matplotlib
+accelerate
